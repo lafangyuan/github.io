@@ -1,5 +1,9 @@
-hankquinlan.github.io
-=====================
-This is demo data created by [Jonathan McGlone](http://jmcglone.com) and used in a [step-by-step beginners guide](http://jmcglone.com/guides/github-pages) to creating and hosting a personal website using GitHub and Jekyll. You can view the demo data at <http://hankquinlan.github.io> and read the guide at <http://jmcglone.com/guides/github-pages>. 
+# HuxBlog Boilerplate
 
-Users are free to copy and re-use any and all of the code contained here without contacting me.
+##### This is the boilerplate of [Hux Blog](https://github.com/Huxpro/huxpro.github.io), all documents is over there!
+
+#### [View Boilerplate &rarr;](http://huangxuan.me/huxblog-boilerplate/)
+
+#### [View Live Hux Blog &rarr;](http://huangxuan.me)
+
+## If you like Hux Blog, Please star [huxpro.github.io repo](https://github.com/Huxpro/huxpro.github.io) instead of this! Thank you!
