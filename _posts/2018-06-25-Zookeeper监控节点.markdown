@@ -3,7 +3,7 @@ layout:     post
 title:      "Zookeeper 监控节点"
 subtitle:   " \"Zookeeper 监控节点在线离线\""
 date:       2018-06-25 12:00:00
-author:     "Hux"
+author:     "echola"
 header-img: "img/post-bg-2015.jpg"
 tags:
     - SpringCloud
