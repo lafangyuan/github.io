@@ -14,7 +14,7 @@ tags:
 ###### 原理  
 利用Znode临时节点的创建、删除的特性    
 *客户端活跃时，临时节点就是有效的。当客户端与ZooKeeper集合断开连接时，临时节点会自动删除*
-![image](https://note.youdao.com/yws/public/resource/1f77183ecf1421a6d62d9e1af531ec88/xmlnote/F6C29C70FA5245B7A8D346CFD05A1AF0/11242)
+![image](/img/in-post/zk01.png)
 ###### 步骤
 - watcher监控端创建一个永久型的Znode,并注册这个node的子节点变更事件。
 - service服务端创建临时性子节点
