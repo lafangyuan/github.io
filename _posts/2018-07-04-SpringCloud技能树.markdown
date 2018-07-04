@@ -10,7 +10,11 @@ tags:
 ---
 
 #### SpringCloud组件
-![image](/img/skill-tree/微服务.png)
+![image](/img/in-post/skill-tree/微服务.png)
 
 #### 部署平台
-![image](/img/skill-tree/部署平台.png)
+![image](/img/in-post/jenkins01.png)
+![image](/img/in-post/skill-tree/部署平台.png)
+
+#### 生产级应用
+![image](/img/in-post/微服务架构图[架构师201804].png)
