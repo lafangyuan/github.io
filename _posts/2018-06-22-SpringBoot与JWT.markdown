@@ -63,6 +63,7 @@ HMACSHA256(
 ```
 1. 用户名密码登录到后台，用secret生成一个token  
 **Controller登录相关代码**
+
 ```
   @RequestMapping(value = "${jwt.route.authentication.path}", method = RequestMethod.POST)
     public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtAuthenticationRequest authenticationRequest, Device device) throws AuthenticationException {
@@ -84,7 +85,9 @@ HMACSHA256(
         return ResponseEntity.ok(new JwtAuthenticationResponse(token));
     }
 ```
-生成token:
+
+**生成token**:
+
 ```
   private String doGenerateToken(Map<String, Object> claims, String subject, String audience) {
         final Date createdDate = new Date();
@@ -100,9 +103,12 @@ HMACSHA256(
                 .compact();
     }
 ```
+
 2. 用户后续每次请求时将token放在header中传到后台
 3. 后台filter解析token来获取用户名等需要的信息  
+
 解密token:
+
 ```
     private Claims getClaimsFromToken(String token) {
         Claims claims;
@@ -118,6 +124,7 @@ HMACSHA256(
     }
 ```
 filter部分代码
+
 ```
  final String requestHeader = request.getHeader(this.tokenHeader);
 
@@ -154,6 +161,7 @@ filter部分代码
 ```
 
 #### Web入口配置
+
 ```
 @Configuration
 @EnableWebSecurity
@@ -171,6 +179,7 @@ config中添加filter:
 
 #### 核心接口及其实现
 - WebSecurityConfig
+
 ```
 @Configuration
 @EnableWebSecurity
@@ -179,7 +188,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
     
 }
 ```
+
 - UserDetailsService 需要实现，用来获取用户信息
+
 ```
 package org.springframework.security.core.userdetails;
 
@@ -188,7 +199,9 @@ public interface UserDetailsService {
 }
 
 ```
+
 - UserDetails需要实现，关联用户信息
+
 ```
 package org.springframework.security.core.userdetails;
 
