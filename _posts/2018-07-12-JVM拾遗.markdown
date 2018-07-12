@@ -1,0 +1,105 @@
+---
+layout:     post
+title:      "JVM拾遗"
+subtitle:   " \"JVM内存划分，GC，调优等，不断更新中\""
+date:       2018-07-12 12:00:00
+author:     "echola"
+header-img: "img/post-bg-2015.jpg"
+tags:
+    - Java基础
+---
+
+### JVM内部机构
+![image](/img/in-post/skill-tree/JVM.png)
+
+#### 程序计数器     
+- 每个线程有一个
+- 存储当前线程正在执行的方法在JVM中的指令地址。如果是本地方法，则是未指定值。
+#### JVM虚拟机栈
+- 每个线程在创建时会创建一个。
+- 保存一个个的栈帧，对应一次次的方法调用。
+- 栈帧存放局部变量表、操作数栈、动态链接等。
+#### 方法区
+- 所有线程共享，存储元（Meta）数据，包括常量池、类结构信息等
+#### 本地方法栈
+- 每个线程都会创建
+- 调用本地方法
+#### 堆内结构
+- 新生代：大部分对象创建和销毁的区域
+- - Eden
+- - from (Survivor)
+- - to (Survivor)：将Eden活下来的对象和from区域的对象拷贝到to区域
+- 老年代：放置长生命周期的对象，通常是从Survivor区域拷贝过来的对象，还有大对象。
+- 永久代：元数据、常量池、Inter字符串缓存。
+##### 参数
+- 最大堆体积
+
+```
+-Xmx value
+```
+
+- 初始的最小堆体积
+```
+-Xms value
+```
+
+- 老年代和新生代的比例
+```
+-XX:NewRatio=value (默认为3，老年代是新生代的3倍)
+-XX:NewSize=value (直接定义新生代的大小) 
+```
+
+### GC调优的主要方面
+- 内存占用过高
+- 吞吐量
+- 延时
+### CPU占用过高? 内存占用100%  
+
+1. 查看Java PID
+
+```
+jps
+```
+
+2. 输出堆栈信息到log文件
+
+```
+jstack [pid] >xxx.log
+```
+
+3. 查看pid进程占用CPU最高的线程，使用ProcessExplorer工具
+4. 将线程ID转为16进制，去log文件里面查找。
+
+### 查看堆内，堆外的使用情况
+
+
+#### JDK垃圾回收
+##### GC的类型
+- Serial GC ：串行模式，"Stop the world"，复制算法，用于新生代，响应速度优先，适用于单CPU模式下的Client模式。
+- ParNew GC:Serial GC的多线程版本，最常见的应用是配合老年代的CMS GC，对应参数
+
+```
+-XX:+UseConcMarkSweepGC -XX:+UseParNewGC
+```
+
+- CMS(Concurrent Mark Sweep) GC,给予标记-清除算法，存在碎片化问题，会导致Full GC
+- Parrellel GC，吞吐量优先，老年代和新生代GC同时进行。
+- G1 GC兼顾吞吐量和停顿时间的GC，JDK9以后的默认GC，标记-整理算法。Java堆非常大的时候非常有优势。
+##### GC主要收集哪里的内存？
+- 实例对象，在堆上面
+- 方法区的元数据信息
+##### GC算法
+- 复制：直接按照顺序复制，避免内存碎片，但是会有空间浪费
+- 标记-清除：标记出要回收的对象，然后清除。标记、清除效率有限，产生内存碎片。不合适特别大的堆，否则，FullGC时间太长。
+- 标记-整理：类似标记清除，在清除过程中，会移动对象，避免内存碎片化。
+##### GC的过程  
+new 对象-->Eden区达到阈值-->GC-->活着的对象被移植到Survivor，Eden变空-->new 对象-->Eden区达到阈值-->GC-->一个Survivor区域变为to区域，Eden区域的存活对象和from区域的对象被复制到to区域，存活年龄计数+1 -->超过阈值-->GC，复制到老年代。
+##### 日志打印GC的过程
+```
+-XX:+PrintGC 输出GC日志
+-XX:+PrintGCDetails 输出GC的详细日志
+-XX:+PrintGCTimeStamps 输出GC的时间戳（以基准时间的形式）
+-XX:+PrintGCDateStamps 输出GC的时间戳（以日期的形式，如 2013-05-04T21:53:59.234+0800）
+-XX:+PrintHeapAtGC 在进行GC的前后打印出堆的信息
+-Xloggc:../logs/gc.log 日志文件的输出路径
+```
