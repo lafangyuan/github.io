@@ -8,9 +8,8 @@ header-img: "img/post-bg-2015.jpg"
 tags:
     - Java基础
 ---
-
-### JVM内部机构
 ![image](/img/in-post/skill-tree/JVM.png)
+### JVM内部结构
 
 #### 程序计数器     
 - 每个线程有一个
