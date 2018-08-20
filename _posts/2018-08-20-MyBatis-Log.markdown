@@ -36,9 +36,14 @@ tags:
 
 - 读取mybatis-config.xml配置文件
 - 创建SqlSessionFactoryBuilder
-- - XmlConfigBuilder
-- - Configuration在实例化时注册了常用的日志实现类
+- - XmlConfigBuilder读取mybatis-config.xml文件中的setting配置,通过持有configuration对象来设置日志的实现
 ```
+	configuration.setLogImpl(resolveClass(props.getProperty("logImpl")));
+```
+
+- - Configuration在实例化时注册了常用的日志实现类，并且实现了setLogImpl来指定具体的日志实现类
+```
+// 注册常用的日志类
    typeAliasRegistry.registerAlias("SLF4J", Slf4jImpl.class);
     typeAliasRegistry.registerAlias("COMMONS_LOGGING", JakartaCommonsLoggingImpl.class);
     typeAliasRegistry.registerAlias("LOG4J", Log4jImpl.class);
@@ -46,6 +51,14 @@ tags:
     typeAliasRegistry.registerAlias("JDK_LOGGING", Jdk14LoggingImpl.class);
     typeAliasRegistry.registerAlias("STDOUT_LOGGING", StdOutImpl.class);
     typeAliasRegistry.registerAlias("NO_LOGGING", NoLoggingImpl.class);
+// 指定具体的日志实现类
+	public void setLogImpl(Class<?> logImpl) {
+	    if (logImpl != null) {
+	      this.logImpl = (Class<? extends Log>) logImpl;
+	      LogFactory.useCustomLogging(this.logImpl);
+	    }
+	  }
+
 ```
 
 - - TypeAliasRegistry
