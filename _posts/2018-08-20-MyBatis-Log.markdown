@@ -1,24 +1,32 @@
 ---
 layout:     post
-title:      "Mybatis Log日志源码解读"
-subtitle:   " \"Mybatis Log日志源码解读\""
-date:       2018-08-20 12:00:00
+title:      "MyBatis系列-Mybatis源码之 Log的实现流程（4）"
+subtitle:   " \"MyBatis系列-Mybatis源码之 Log的实现流程（4）\""
+date:       2018-11-20 12:00:00
 author:     "echola"
 header-img: "img/post-bg-2015.jpg"
 tags:
     - Mybatis
 ---
 
+#### 本篇文章内容
+- Mybatis的日志如何配置，如何加载配置？
+- 核心接口和实现类
+- 如何实现只打印SQL，不打印结果集？
+- 如何实现只打印部分Mapper的SQL？
+
+##### 官方文档：
+http://www.mybatis.org/mybatis-3/zh/logging.html
+##### 从配置开始
+
 **我们从Mybatis配置文件中的日志配置开始，来看看它到底是怎么实现的**
-![image](/img/in-post/Mybatis-log.png)
+![image](https://lafangyuan.github.io/img/in-post/Mybatis-log.png)
 
 ```
 <configuration>
-
     <settings>
     	<setting name="logImpl" value="NO_LOGGING"/>
     </settings>
-
 </configuration>
 ```
 
@@ -108,4 +116,89 @@ tags:
 
 ```
 public class Log4jImpl implements Log 
+```
+
+
+##### 日志打印是如何实现的？
+Mybatis在获取执行一条SQL语句的时候，对Connection,Statement,ResultSet,PreparedStatement作了代理，通过代理实现实现了日志打印。
+![image](https://lafangyuan.github.io/img/in-post/Mybatis源码之Log-jdbcLog.png)
+
+###### ConnectionLogger
+- 描述：获取数据库连接的日志代理类
+- 打印哪些方法的SQL：prepareStatement，createStatement，prepareCall，打印select。
+- 调用链：*session.selectList*-->*configuration.getMappedStatement获取MappedStatement*-->*BaseExecutor.query*-->*BaseExecutor.getConnection(MappedStatement.statementLog)*
+- BaseExecutor.getConnection会根据Log的具体情况返回是否生成ConnectionLogger
+
+```
+  protected Connection getConnection(Log statementLog) throws SQLException {
+    Connection connection = transaction.getConnection();
+    if (statementLog.isDebugEnabled()) {
+      //如果需要打印Connection的日志，返回一个ConnectionLogger(代理模式)
+      return ConnectionLogger.newInstance(connection, statementLog, queryStack);
+    } else {
+      return connection;
+    }
+  }
+```
+###### PreparedStatementLogger、StatementLogger
+- 描述：PreparedStatement，Statement代理类。
+- 打印哪些方法的SQL：execute、executeQuery、executeUpdate、addBatch
+
+##### ResultSetLog
+- 描述：ResultSet代理类
+- 打印哪些方法的SQL: 调用ResultSet.next()时打印结果集，表头。**只有当Log接口的实现类返isTraceEnabled返回true时才打印。因此，可以通过配置Log实现类对应的日志级别来设置是否打印结果集**
+
+```
+//log4j为例
+log4j.logger.org.mybatis.example=TRACE
+
+```
+
+#####  可否通过调用方法开启/关闭Mybatis的日志打印？
+
+通过Excutor接口发现，执行SQL的MappedStatement都持有一个Log接口，这个接口的具体设置是在其Builder中创建，也就是说只有在Builder的时候设置才生效。而在获取Log的时候直接返回了设置的statementLog，并且MappedStatement的持有的Log为private,也没有提供公共的设置方法，因此，只能通过修改源代码的方式来设置Log
+
+```
+public final class MappedStatement {
+    //持有的Log接口
+    private Log statementLog;
+    ......
+    public Builder(Configuration configuration, String id, SqlSource sqlSource, SqlCommandType sqlCommandType) {
+      mappedStatement.configuration = configuration;
+    .  ....
+      String logId = id;
+      if (configuration.getLogPrefix() != null) {
+        logId = configuration.getLogPrefix() + id;
+      }
+      mappedStatement.statementLog = LogFactory.getLog(logId);
+      mappedStatement.lang = configuration.getDefaultScriptingLanguageInstance();
+    }
+    
+    //获取Log时调用：
+      public Log getStatementLog() {
+         return statementLog;
+      }
+      //修改为通过LogFactory获取
+      public Log getStatementLog() {
+           String logId = this.getId();
+            if (configuration.getLogPrefix() != null) {
+              logId = configuration.getLogPrefix() + id;
+            }
+            return LogFactory.getLog(logId);
+      }
+}
+```
+
+动态修改Log打印实现:
+
+```
+    @RequestMapping("/log/{type}")
+    public Result log(@PathVariable("type")String type) {
+        if("on".equals(type)){
+            LogFactory.useStdOutLogging();
+        }else {
+            LogFactory.useSlf4jLogging();
+        }
+        return new Result().success();
+    }
 ```

@@ -1,0 +1,54 @@
+---
+layout:     post
+title:      "MyBatis系列-整体大纲（1）"
+subtitle:   " \"MyBatis系列-整体大纲（1）\""
+date:       2018-08-26 12:00:00
+author:     "echola"
+header-img: "img/post-bg-2015.jpg"
+tags:
+    - Mybatis
+---
+
+#### 写在开头
+Mybatis作为Java开发人员必备的技能，除了掌握好基本的用法外，还可以通过学习源码来了解作者的设计思路与方法，灵活应用内置的各种工具。Mybatis作为常用框架，相比Spring，代码结构更加简单，代码量相对较少。因此如果第一次系统的研究一个框架的源码，从Mybatis开始无疑是一个好的选择。
+
+#### 整体：
+
+所在包 | 说明|地址
+---|---|---
+org.apache.ibatis.session | 数据库连接、配置、操作接口的定义
+org.apache.ibatis.executor | 数据库操作的具体实现
+org.apache.ibatis.cache |缓存实现，一二级缓存实现|https://my.oschina.net/lfy2008/blog/3104470
+org.apache.ibatis.logging|日志实现，SQL、参数、返回值打印|https://my.oschina.net/lfy2008/blog/1931205
+org.apache.ibatis.plugin|插件|https://my.oschina.net/lfy2008/blog/3103747
+
+#### 实践
+##### 需要临时打印生成环境一个接口的SQL?
+> 通过一个REST API来开启、关闭SQL的打印。
+##### 系统开发完成，需要将物理删除修改为逻辑删除？
+> 通过Plugin将delete语句改为update语句
+##### Mapper接口中方法能否重载？
+> Configuration中的Map实现
+
+#### 工具
+##### Mybatis-Plus
+##### 通用Mapper
+###### 对比
+
+ --- | 通用Mapper|Mybatis-Plus
+---|---|---
+ git-star| 4.5k|6.5k
+git-releases | 49|44
+git-lastUpdate|2019-6|2019-9
+CRUD|提供、可扩展|提供、可扩展
+条件构造|提供Example|提供Wrapper
+分页|PageHelper|支持
+逻辑删除|不支持|支持
+
+#### Mybatis Plugin 
+- Mapper和SQL的导航
+- XML自动补全
+- 快捷键生成XML
+- 自动生成ResultMap
+#### 推荐书籍
+- 《MyBatis从入门到精通》 MyBatis官方推荐的分页插件PageHelper和通用Mapper的作者
